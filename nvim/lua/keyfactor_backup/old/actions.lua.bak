@@ -1,0 +1,651 @@
+--[[
+
+How to associate combinations of actions with key names:
+
+for each key (e.g. "left" or "search"), we want to associate a variable number of commands
+- sometimes commands are associated directly with the key or a modified version,
+  sometimes the key is just a prefix,
+  sometimes both
+
+want to avoid specifying in terms of keystrokes directly so that keystrokes can easily be remapped
+
+have several modes, and want it to be easy to change what happens in a given mode
+    modes: noxit(sc) (lang-mode not supported)
+    - don't necessarily need to support combo modes like "", "!", or "v" directly, but should
+    support combo modes by specifying multiple base modes (like "noxs")?
+
+internal representation: separate tables for each mode cinostx
+key_table = {key = action_table}
+action_table = {[1]-[n] = function, string, or key_table}
+
+--]]
+
+
+action_table = {[context=action]}
+action=string|function|{options, action}
+
+action could be "set context..."
+modifiers also set context?
+- shift sets reverse or strong, but not both...
+    - preferntially reverse? then strong?
+- 
+- e.g. shift sets "strong" and "reverse"
+- ctrl sets "alternate"
+- alt sets "reverse" and "alternate"
+
+{   left = {
+        {'h', mode='nosx'},
+        {'g^', mode='nosx', selector='shift'},
+        {'^', mode='nosx', selector={'linewise', 'shift'}},
+        {'g0', mode='nosx', selector='ctrl'},
+        {'0', mode='nosx', selector={'linewise', 'ctrl'}},
+        {'<C-y>', mode='cinosx', selector='alt'},
+        {normal('h'), mode='ci', selector='ctrl'},
+        {normal('^'), mode='ci', selector={'linewise', 'ctrl'}},
+        {'<C-\\><C-n><C-w>h', mode='cinostx', attributes={'window'}},
+        {'<Cmd>vertical leftabove split<CR>', mode='cinostx', attributes={'window', 'alternate'}},
+        {'<C-\\><C-n><C-w>H', mode='cinostx', attributes={'window', 'alternate', 'strong'}},
+    },
+    up = {
+        {'h', mode='nosx'},
+        {'g^', mode='nosx', attributes={'strong'}},
+        {'^', mode='nosx', attributes={'strong', 'linewise'}},
+        {'g0', mode='nosx', attributes={'stronger'}},
+        {'0', mode='nosx', attributes={'stronger', 'linewise'}},
+        {'<C-y>', mode='nosx', attributes={'scroll'}},
+        {normal('h'), mode='ci', attributes={'quick'}},
+        {normal('^'), mode='ci', attributes={'quick', 'strong'}},
+        {'<C-\\><C-n><C-w>h', mode='cinostx', attributes={'window'}},
+        {'<Cmd>vertical leftabove split<CR>', mode='cinostx', attributes={'window', 'alternate'}},
+        {'<C-\\><C-n><C-w>H', mode='cinostx', attributes={'window', 'alternate', 'strong'}},
+    },
+
+
+{{left, right, up, down}, {{'shift'}, {'strong'}}
+
+
+shift='strong', ctrl='stronger', alt='scroll'}
+        
+
+
+
+{{left, right, up, down}, nosx={shift={'strong', 'wrap'}, ctrl={'strong'}},
+                          ci=
+{{word, WORD
+
+
+{shift, {{'reverse'}, {'strong', 'wrap'}, {'strong'}, 
+
+{mode='t', attributes={'quick'}, action=...},
+
+set mode="noxs"
+left = {noxs = 'h',
+        strong_noxs = '^',
+        stronger_noxs = 'g0',
+        strongest_noxs = '0',
+        quick_ci = normal('h'),
+        quick_strong_ci = normal('^'),
+        quick_t = ...,
+        quick_strong_t = ...,
+        goto = ...
+        nav = ...
+        strong_nav = ...
+        stronger_nav = ...
+        strongest_nav = ...
+        
+        
+    },
+},
+{_mode="ci",
+    left = {
+        quick = normal('h'),
+        quick_strong = normal('^'),
+    },
+},
+{_mode="t",
+    left= {
+        quick = '' -- TODO
+        quick_strong = '' -- TODO
+    },
+},
+
+left = {
+    {_mode="noxs"
+
+word_noxs = {
+    [nil],
+    reverse,
+    alternate,
+    reverse_alternate,
+}
+
+Goto = {
+    [nil] = {subtable...}
+    reverse = {subtable...}
+    linewise = {subtable...}
+    reverse_linewise = {subtable...}
+}
+
+search = {
+    [nil] = '/',
+    reverse='?',
+    display=':noh<CR>',
+    Select=telescope...
+}
+
+indent = {
+    [nil]
+    linewise
+    reverse
+    linewise_reverse
+    alternate
+    linewise_alternate
+}
+
+delete = {
+    [nil]
+    linewise
+    strong
+    alternate
+
+
+
+
+
+
+
+
+right_noxs = {
+    [nil] = 'l',
+    reverse = 'g_',
+    strong = 'g_',
+    stronger = '0',
+},
+right_ci = {
+    quick1 = normal('h'),
+    quick2 = normal('^'),
+},
+right_t = {
+    --[[ TODO, equivalent of normal('h'), normal('^') for terminal ]]
+},
+
+
+
+
+
+{
+    left={
+        ci={
+        },
+        --[[
+        t={
+            quick1 = ...,
+            quick2 = ...
+        },]]
+    },
+    right={
+
+}
+
+{{mode="_", {
+    {k.left, 'h'},
+    {shift(k.left), '^'},
+    {alternate(
+    {ctrl(k.left), 'g0'},
+    {alt(k.left), '0'}
+    -- super(k.left): window nav (also in mode=i)
+}},
+
+-- Right
+{mode="_", {
+    {k.right, 'l'},
+    {shift(k.right), 'g_'},
+    {ctrl(k.right), 'g$'},
+    {alt(k.right), '$'}
+    -- {super(k.right): window nav} (also in mode=i)
+}},
+
+-- Up
+{mode="_", {
+    {k.up, function() commands.fancy_vert(true) end},
+    {shift(k.up), 'H'},
+    {ctrl(k.up), '<C-y>'},
+    {alt(k.up), '<Cmd>keepjumps normal! <C-b>M<CR>'}
+    -- super(k.up): window nav
+}},
+
+-- Down
+{mode="_", {
+    {k.down, commands.fancy_vert},
+    {shift(k.down), 'L'},
+    {ctrl(k.down), '<C-e>'},
+    {alt(k.down), '<Cmd>keepjumps normal! <C-f>M<CR>'}
+    --super(k.down): window nav
+}},
+
+-- word movement
+{mode="_", {
+    {k.word, 'w'},
+    {shift(k.word), 'b'},
+    {ctrl(k.word), 'e'},
+    {alt(k.word), 'ge'}
+    --{super(k.word), hop.nvim}, -- TODO easymotion-style word movement
+}},
+
+-- WORD movement
+{mode="_", {
+    {k.WORD, 'W'},
+    {shift(k.WORD), 'B'},
+    {ctrl(k.WORD), 'E'},
+    {alt(k.WORD), 'gE'}
+    --{super(k.WORD), hop.nvim}, -- TODO easymotion-style WORD movement
+}},
+
+-- Character movement
+{mode="_", {
+    {k.char, commands.char_t}, -- TODO test
+    {shift(k.char), commands.char_T},
+    {ctrl(k.char), commands.char_f},
+    {alt(k.char), commands.char_F},
+    --{super(k.char), hop.nvim},-- TODO easymotion-style char movement
+}},
+
+-- Block movement
+{k.block, '}'},
+{shift(k.block), '{'},
+{ctrl(k.block), ']['}, -- TODO these are currently mediocre
+{alt(k.block), '[]'},
+{super(k.block), '%'},
+
+-- Goto
+-- TODO work with linewise
+{k.goto, { -- charwise forward
+    {k.insert, "`^"},
+    {k.change, "`]"},
+    {k.yank, "`]"},
+    {k.visual, "`>"} -- TODO in visual mode replace with O?
+    {k.seek, "``"},
+    {k.repeat, "`."},
+    {k.word, "*"},
+    {k.undo, "g,"},
+    {k.surround, "<NOP>"}, -- TODO, like % but always goes forward? also catches ", ', etc.?
+    -- k.block: hybrid ]} ]{ ]( ])???
+    {k.spell, "]s"},
+    {shift(k.spell), "]S"},
+    {k.mark, "]`"},
+    {k.nav_exit, '`"'},
+    {k.goto, "<C-]>"},
+    {k.command, ":tag<CR>"}, -- TODO this is meh
+    {k.fold, "zj"},
+    {shift(k.fold), "]z"},
+
+    {k.up, 'gg'},
+    {k.down, commands.go_to_neg_line},
+    {k.left, commands.fancy_percent},
+    {k.right, function() commands.fancy_percent(true) end}
+}},
+{shift(k.goto), { --charwise backward
+    {k.insert, "`^"},
+    {k.change, "`["},
+    {k.yank, "`["},
+    {k.visual, "`<"} -- TODO in visual mode replace with o?
+    {k.seek, "``"},
+    {k.repeat, "`."},
+    {k.word, "#"},
+    {k.undo, "g;"}, 
+    {k.surround, "<NOP>"}, -- TODO, like % but always goes backward? also catches ", ', etc.?
+    -- k.block: hybrid [} [{ [( [)???
+    {k.spell, "[s"}, -- TODO trigger seek
+    {shift(k.spell), "[S"}, -- TODO trigger seek
+    {k.mark, "[`"}, -- TODO trigger seek, rewrite for marks plugin
+    {k.command, '`"'},
+    {k.goto, "<C-t>"},
+    {shift(k.goto), "<C-t>"},
+    {k.fold, "zk"},
+    {shift(k.fold), "[z"}
+}},
+{ctrl(k.goto), { --linewise forward
+    {k.insert, "'^"},
+    {k.change, "']"},
+    {k.yank, "']"}, -- TODO modify operators to remember this in greater detail?
+    {k.visual, "'>"}
+    {k.seek, "''"},
+    {k.repeat, "`."},
+    {k.undo, "g,^"}, -- TODO trigger seek?
+    {k.surround, "<NOP>"}, -- TODO, like % but always goes forward? also catches ", ', etc.?
+    -- k.block: hybrid ]} ]{ ]( ])???
+    {k.mark, "]'"}, -- TODO trigger seek?
+    {k.command, [['"]]},
+}},
+{alt(k.goto), { --linewise backward
+    {k.insert, "'^"},
+    {k.change, "'["},
+    {k.yank, "'["},
+    {k.visual, "'<"}
+    {k.seek, "''"},
+    {k.repeat, "'."},
+    {k.undo, "g;^"}, -- TODO trigger seek?
+    {k.surround, "<NOP>"}, -- TODO, like % but always goes backward? also catches ", ', etc.?
+    -- k.block: hybrid [} [{ [( [)???
+    {k.mark, "['"}, -- TODO trigger seek?
+    {k.command, [['"]]},
+}},
+
+
+-- Seek
+{k.seek, commands.seek.go},
+{shift(k.seek), function() commands.seek.go(true) end},
+{ctrl(k.seek), '<C-o>'}, -- jumplist navigation
+{alt(k.seek), '<C-i>'},
+
+-- Sneak
+-- -- TODO work with next/seek
+{k.sneak, commands.sneak_forward},
+{shift(k.sneak), commands.sneak_backward},
+{ctrl(k.sneak), '<Plug>SneakLabel_s'}, -- TODO replace with hop?
+{alt(k.sneak), '<Plug>SneakLabel_S'},
+
+-- Search
+-- -- TODO think about how to make search/replace (and cmd-mode versions) more convenient with
+--         this rebinding
+{k.search, commands.search_forward},
+{shift(k.search), commands.search_backward},
+{ctrl(k.search), '<Cmd>noh<CR>', mode='_it'},
+{alt(k.search), telescope.current_buffer_fuzzy_find},
+
+
+--- LEFT HAND (ACTIONS)
+
+-- Insert
+{mode='n', {
+    {k.insert, 'a'},
+    {shift(k.insert), 'i'},
+    {ctrl(k.insert), 'A'},
+    {alt(k.insert), 'I'},
+    {linewise, {
+        {k.insert, 'o'},
+        {shift(k.insert), 'O'}
+        -- {ctrl(k.insert), TODO new line at bottom of current block?}
+    }}
+}},
+
+-- Paste
+{mode='n', {
+    {k.paste, function() commands.put('c', false, 0) end},
+    {shift(k.paste), function() commands.put('c', true, 0) end}
+    {linewise, {
+        {k.paste, function() commands.put('l', false, 0) end},
+        {shift(k.paste), commands.put('l', true, 0) end }
+        {ctrl(k.paste), '<Plug>unimpairedBlankDown'}
+        {alt(k.paste), '<Plug>unimpairedBlankUp'}
+    }},
+}},
+
+-- Swap
+{mode='n', {
+    {k.swap, commands.swap_char},
+    {shift(k.swap), function() commands.swap_char(reverse) end},
+    {linewise, {
+        {k.swap, '<Plug>(unimpaired-move-down)'},
+        {shift(k.swap), '<Plug>(unimpaired-move-up)'},
+    }}
+}},
+{mode='v', {
+    {k.swap, '<Plug>(unimpaired-move-selection-down)', mode='v'},
+    {shift(k.swap), '<Plug>(unimpaired-move-selection-up)', mode='v'},
+    {ctrl(k.swap), 'gv', mode='v'}, -- swap with previous visual selection
+}},
+
+--[[
+-- Insert
+{mode='n', {
+    {k.insert, 'i'},
+    {shift(k.insert), 'I'},
+    {ctrl(k.insert), 'O'},
+    {alt(k.insert), 'O<Esc>0"_d$j'} -- TODO see unimpaired.vim
+}},
+
+-- Append
+{mode='n', {
+    {k.append, 'a'},
+    {shift(k.append), 'A'},
+    {ctrl(k.append), 'o'},
+    {alt(k.append), 'o<Esc>0"_d$k'} -- TODO see unimpaired.vim
+}},
+
+-- Paste
+{mode='n', {
+    {k.paste, function() commands.put('c', false, 0) end},
+    {shift(k.paste), function() commands.put('c', true, 0) end},
+    {ctrl(k.paste), function() commands.put('l', true, 0) end},
+    {alt(k.paste), function() commands.put('l', false, 0) end}
+}},
+{mode='v', {
+    {k.paste, 'p'},
+    {shift(k.paste), 'p'}
+}},
+--]]
+
+-- Delete
+{mode='n', {
+    {k.delete, 'd'},
+    {shift(k.delete), 'D'},
+    {ctrl(k.delete), 'x'},
+    {linewise..k.delete, 'dd'}
+}},
+{mode='v', k.delete, 'd'},
+
+-- Change
+{mode='n', {
+    {k.change, 'c'},
+    {shift(k.change), 'C'},
+    {ctrl(k.change), 'r'},
+    {linewise..k.change, 'cc'}
+}},
+{mode='v', k.change, 'c'},
+
+-- Yank
+{mode='n', {
+    {k.yank, 'y'},
+    {shift(k.yank), 'y$'},
+    {linewise..k.yank, 'yy'}
+}},
+{mode='v', k.yank, 'y'},
+
+-- Indent
+{mode='nv', {
+    {k.indent, '>'},
+    {shift(k.indent), '<'},
+    {ctrl(k.indent), '='}
+}},
+{mode='n', {
+    {linewise..k.indent, '>>'},
+    {linewise..shift(k.indent), '<'},
+    {linewise..ctrl(k.indent), '='}
+}},
+
+-- Format
+{mode='nv', {
+    {k.format, 'gq'},
+    {shift(k.indent), commands.join},
+    {ctrl(k.indent), gu},
+    {alt(k.indent), gU}
+    --{super(k.format), '!'}, -- TODO ??
+}},
+{mode='n', {
+    {linewise..k.format, 'gqgq'},
+    {linewise..shift(k.indent), 'J'},
+    {linewise..ctrl(k.indent), gugu},
+    {linewise..alt(k.indent), gUgU}
+}},
+
+-- Surround
+{mode='n', {
+    {k.surround, '<Plug>Ysurround', {
+        {k.delete, '<Plug>Dsurround'},
+        {k.change, '<Plug>Csurround'}
+    }},
+    {linewise..k.surround, '<Plug>Yssurround'},
+    {shift(k.surround), '<Plug>YSurround', {
+        {k.change, '<Plug>CSurround'}
+    }},
+    {linewise..shift(k.surround), '<Plug>YSsurround'}
+}},
+{mode='v', {
+    {k.surround, '<Plug>VSurround'},
+    {shift(k.surround), '<Plug>VgSurround'},
+}},
+{mode='i', {
+    {ctrl(k.surround), '<Plug>Isurround'},
+    {alt(k.surround), '<Plug>ISurround'},
+}},
+
+-- Fold
+-- TODO set foldmethod to indent?
+{k.surround..k.fold, 'zf'}, -- create a fold when foldmethod is manual/marker
+{linewise..k.surround..k.fold, 'zF'},
+{k.fold,
+    {k.left, 'zc'},
+    {shift(k.left), 'zx'},
+    {ctrl(k.left), 'zC'},
+    {k.right, 'zo'},
+    {shift(k.right), 'zv'},
+    {shift(k.right), 'zO'},
+    {k.up, 'zm'},
+    {shift(k.up), 'zM'},
+    {ctrl(k.up), 'zX'},
+    {k.down, 'zr'},
+    {shift(k.down), 'zR'},
+    {ctrl(k.down), 'zX'},
+},
+{shift(k.fold), 'zn'}
+{ctrl(k.fold), 'zx'}
+
+-- Visual
+{mode='n', {
+    {k.visual, 'v'},
+    {linewise..k.visual, 'V'},
+    {blockwise..k.visual, '<C-v>'},
+}},
+
+-- Motion Type
+{mode='ov', {
+    {charwise, function() commands.do_visual('c') end},
+    {linewise, function() commands.do_visual('l') end},
+    {blockwise, function() commands.do_visual('b') end},
+}},
+
+-- Undo
+{mode='n', {
+    {k.undo, 'u'},
+    {shift(k.undo), '<C-r>'},
+}},
+
+-- Register
+{mode='nv', {
+    {k.register, '"'},
+}},
+
+-- Command
+{k.command, ':', mode='n', options={silent=false}},
+-- {shift(k.command), TODO do vim standard mapping}, 
+{ctrl(k.command), '<C-\\><C-n>:', mode='_ict', options={silent=false}},
+
+-- Repeat
+{k.repeat, '.'},
+{options={silent=false}, {
+    {shift(k.repeat), 'q'},
+    {ctrl(k.repeat), '@', {
+        {ctrl(k.repeat), '@@'}
+    }}
+}},
+-- {alt(k.repeat), ':@:<CR>', options={silent=false}}, -- TODO
+
+-- Spell
+{mode='n', {
+    {k.spell, ':setlocal spell<CR>'},
+    {shift(k.spell), ':setlocal nospell<CR>'},
+    {ctrl(k.spell), telescope.spell_suggest}, -- suggestions?
+    -- {alt(k.spell), '<NOP>', mode='n'}, -- mark words as good/bad/rare, and unmark. ?
+}},
+
+-- Telescope
+-- TODO so much cool stuff, particularly LSP stuff
+{k.files, telescope.find_files},
+{shift(k.files), telescope.live_grep},
+
+{k.telescope,
+    {k.telescope, telescope.builtin},
+    {k.command, telescope.command_history},
+    {k.register, telescope.registers},
+    {k.mark, telescope.marks},
+    {k.seek, telescope.jumplist},
+    {k.debug, telescope.quickfix},
+    {k.repeat, telescope.resume},
+    {k.search, telescope.search_history},
+    {k.spell, telescope.spell_suggest},
+    {k.code, telescope.treesitter},
+},
+{ctrl(k.telescope), telescope.symbols, mode='i'},
+
+-- Git stuff?
+
+-- Buffer
+-- go to: alternate, next, prev, next modified, prev modified
+-- list and select (via telescope?)
+-- open new empty buffer, unload/wipeout
+{k.nav_goto, '<C-\\><C-n><C-^>'},
+{k.nav_up, '<NOP>'}, -- TODO modified buffer with lower index
+{k.nav_down, ':sbm<CR>'},
+{k.nav_left, ':bp<CR>'},
+{k.nav_right, ':bn<CR>'},
+{k.nav_telescope, telescope.buffers},
+{k.nav_files, telescope.oldfiles},
+{k.nav_new, ':enew<CR>'}
+{k.nav_exit, ':bw<CR>'}
+
+-- Window
+{shift(k.nav_left), '<C-\\><C-n><C-w>h'},
+{shift(k.nav_right), '<C-\\><C-n><C-w>l'},
+{shift(k.nav_up), '<C-\\><C-n><C-w>k'},
+{shift(k.nav_down), '<C-\\><C-n><C-w>j'},
+{shift(k.nav_goto), '<C-\\><C-n><C-w>p'},
+
+-- split new window
+{ctrl(k.nav_left), '<C-\\><C-n>:vertical leftabove split<CR>'},
+{ctrl(k.nav_right), '<C-\\><C-n>:vertical rightbelow split<CR>'},
+{ctrl(k.nav_up), '<C-\\><C-n>:leftabove split<CR>'},
+{ctrl(k.nav_down), '<C-\\><C-n>:rightbelow split<CR>'},
+
+-- swap window (TODO)?
+--[[
+{ctrl(k.nav_left), '<C-\\><C-n>'},
+{ctrl(k.nav_right), '<C-\\><C-n>'},
+{ctrl(k.nav_up), '<C-\\><C-n>'},
+{ctrl(k.nav_down), '<C-\\><C-n>'},
+]]
+
+-- Move window to edge and make large
+{alt(k.nav_left), '<C-\\><C-n><C-w>H'},
+{alt(k.nav_right), '<C-\\><C-n><C-w>L'},
+{alt(k.nav_up), '<C-\\><C-n><C-w>K'},
+{alt(k.nav_down), '<C-\\><C-n><C-w>J'},
+
+-- Close window
+{shift(k.nav_exit), '<C-\\><C-n><C-w>q'},
+-- {alt(k.nav_exit), TODO :q! but with "are you sure" prompt}
+-- {super(k.nav_exit), TODO :qall! but with "are you sure" prompt, and also the option to do
+-- :cquit instead
+
+-- Tab
+{k.nav_tab_left,  '<C-\\><C-n>gT'},
+{shift(k.nav_tab_left),  '<C-\\><C-n>:tabfirst<CR>'},
+{ctrl(k.nav_tab_left),  '<C-\\><C-n>:tabmove -1'},
+{k.nav_tab_right,  '<C-\\><C-n>gt'},
+{shift(k.nav_tab_right),  '<C-\\><C-n>:tablast<CR>'},
+{ctrl(k.nav_tab_left),  '<C-\\><C-n>:tabmove +1'},
+{ctrl(k.nav_goto), '<C-\\><C-n>g<Tab>'},
+
+{shift(k.nav_new), '<C-\\><C-n><C-w>T'},
+{ctrl(k.nav_exit), '<C-\\><C-n><C-w>:tabclose'}
+}

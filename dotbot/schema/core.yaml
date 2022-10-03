@@ -1,0 +1,32 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- link:
+    ~/.zshenv: zsh/zshenv
+    ~/.zshrc: zsh/zshrc
+    ~/.local/share/ohmyzsh: zsh/ohmyzsh
+    ~/.local/share/ohmyzsh/custom/plugins:
+      path: zsh/plugins
+      force: true 
+    ~/.local/share/ohmyzsh/custom/themes:
+      path: zsh/themes
+      force: true 
+    ~/.local/share/ohmyzsh/custom/p10k.zsh: zsh/p10k.zsh
+
+    ~/.config/nvim/:
+      glob: true
+      path: nvim/*
+      exclude: [ nvim/packer ]
+    ~/.local/share/nvim/site/pack/packer/start/packer.nvim: nvim/packer
+
+    ~/.config/kitty: kitty
+    ~/.config/Xmodmap: Xmodmap
+
+    ~/.xprofile:
+
+- clean: ['~']
+- clean:
+    ~/.config:
+      recursive: true

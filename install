@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+SCHEMA_DIR="dotbot/schema"
+SCHEMA_SUFFIX=".yaml"
+DOTBOT_BIN="dotbot/application/bin/dotbot"
+
+set -e
+
+# Apparently, reliably getting the location of a script is complicated.
+# Even this will fail if the script is part of a pipeline, hence the "set -e"
+BASE_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+
+if [[ $# == 0 ]]
+then
+    echo "Usage: install <schema>"
+    exit 1
+fi
+
+schema="${SCHEMA_DIR}/$1${SCHEMA_SUFFIX}"
+shift
+
+if ! [[ -r "${schema}" ]]
+then
+    echo "Schema not readable: ${schema}"
+    exit 1 
+fi
+
+"${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${schema}" "${@}"

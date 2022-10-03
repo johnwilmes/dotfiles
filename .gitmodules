@@ -1,0 +1,12 @@
+[submodule "dotbot"]
+	path = dotbot/application
+	url = https://github.com/anishathalye/dotbot
+[submodule "zsh/ohmyzsh"]
+	path = zsh/ohmyzsh
+	url = https://github.com/ohmyzsh/ohmyzsh
+[submodule "zsh/themes/powerlevel10k"]
+	path = zsh/themes/powerlevel10k
+	url = https://github.com/romkatv/powerlevel10k.git
+[submodule "nvim/packer"]
+	path = nvim/packer
+	url = https://github.com/wbthomason/packer.nvim/

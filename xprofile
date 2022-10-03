@@ -1,0 +1,18 @@
+# KEYBINDINGS
+
+# SET VIA /etc/default/keyboard INSTEAD!
+# (Otherwise, gets clobbered by gnome whenever keyboard is plugged in, or wake from suspend)
+# map caps to ctrl
+#setxkbmap -option 'caps:ctrl_modifier'
+
+# map both the alt key and the super key to the alt key
+#setxkbmap -option 'altwin:alt_win'
+
+# map the caps key to escape when tapped (but still let it be used as ctrl modifier)
+#xcape -e 'Caps_Lock=Escape'
+
+# actually, map all ctrl keys to escape also 
+# (Need this in VM where host already has Caps mapped to ctrl)
+xcape -e 'Caps_Lock=Escape;Control_L=Escape;Control_R=Escape'
+
+xmodmap "$HOME/.config/Xmodmap"

@@ -1,0 +1,29 @@
+# This file contains a list of packages to install with apt
+# Each line should contain a single package name
+# Lines starting with '#' and blank lines will be ignored
+# (Don't use trailing comments)
+
+# This is just to have a reasonably functional system, not to have everything you'd want
+
+# For installing other stuff
+curl
+stow
+git
+
+# The good zsh experience
+zsh
+fzf
+ripgrep
+fd-find
+
+# Vanilla gnome (select on login screen)
+gnome-session
+
+# To map caps lock as desired (X11)
+xcape
+
+# For extension to disable activities overview on login
+chrome-gnome-shell
+gnome-shell-extension-prefs
+
+build-essential

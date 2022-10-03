@@ -1,0 +1,194 @@
+Actions:
+    - delete
+    - change
+    - all other operators
+    - insert, put
+    - repeat
+    - undo
+    - visual anything (separately?)
+
+Want to receive "active region" in buffer from each action, for repeat text object
+
+
+action_state = {cursor (pre-motion), motion type, start, end, orientation?}
+
+conforming operator takes action_state as input, makes changes, returns new action_state
+
+insert:
+    - how to deal with backspace/del/arrows beyond initial cursor/insert region?
+        - treat as as single region encompassing entire edited field
+        - retroactively classify as a change operator rather than an insert
+        - retroactively force motion type as charwise
+    - always starts new action chain
+
+
+nmap d do_operator(delete_action)
+nmap p do(put_action, fixed_state) -- missing state fields field from current state?
+
+function do(action, state)
+    ... set up according to state ...
+    ... fill missing state values ...
+
+    new_state = action(state)
+
+    ... check for old_state override from new_state ...
+    ... clean up according to new_state ...
+end
+
+function do_operator(action)
+    get current state
+    save state and action
+    set up operator
+    sendkeys(g@)
+end
+
+function _operator_callback(motion_type)
+    ... take a look to see if the motion was conforming ...
+    ... if motion was conforming, incorporate richer state ...
+    complete the state
+    do(saved_action, state)
+end
+
+function delete_action(state)
+    delete from start to end, interpreted according to motion type
+
+    return {start=end=nil, adjust cursor?, motion type preserved?}
+function 
+
+function insert_action(state)
+    set up some autocmds to keep an eye on things
+
+    sendkeys(i) or whatever
+    return "pending state"...
+end
+
+
+
+    
+
+
+function commands._operator_callback(motion_type)
+    action_state = {}
+    action_state.
+    region_start = vim.api.nvim_buf_get_mark(0, "[")
+    region_end = vim.api.nvim_buf_get_mark(0, "]")
+
+    push the action_state onto the stack
+
+    new_state = opfunc(action_state)
+end
+
+
+function commands.objects.repeat()
+    In the context of the current buffer!
+    check if repeat region is live:
+        - e.g. by looking at the changetick
+    if not live:
+        do nothing? send <esc>?
+        or fall back to [ and ]?
+    if live:
+        get saved motion type
+        check detailed mode() to see if forced charwise/linewise
+            if so, overwrite saved motion type
+end
+
+function undo()
+    
+    
+Case studies:
+    A) gU_ then >(repeat) then motion then .
+        - What should repeat action affect? One nice interpretation would be that it should affect
+          _, like gU, but the action should be gU followed by >
+    B) operator on region 1 producing active region 1', then operator on region 2 production active
+      region 2', then undo.
+        - What is the active region? Plausible choices are 1', 2, and nil. 1' probably worst
+          choice, very natural that it would have expired and might often be hard to remember. 2
+          okay, but then presumably another undo would bring active region back to 1, which
+          requires remembering more
+    C) operator on region 1 producing active region 1', then operator on repeat region producing
+      active region 1'', then undo
+        - What is the active region? Plausible choices are 1' and nil. 1' is desirable, but
+          chaining this with potentially several undos requires remembering more
+    D) chained operators on active region, followed by motion and repeat action (.), followed by
+      undo
+        - if B) is 2, then active region should be whatever is selected by repeat action. Else
+          active region should be nil
+    E) do something in one buffer, do something else in another buffer with repeat motion
+        - repeat action is shared between buffers. Obviously repeat motion is not
+    F) do something in buffer 1, do repeat (.) in buffer 2, continue with repeat motion in buffer 1
+        - I guess this continues tacking on to the repeat sequence
+
+
+------
+
+timeoutlen override solution:
+
+first understand existing behavior
+    - set timeoutlen to zero: key with <NOP> as single binding, other as bigram binding will always
+      NOP? - CONFIRMED
+    - set timeoutlen to large: key with all bigram bindings as NOP will nevertheless wait
+      timeoutlen for prefix? - CONFIRMED
+    - here's another weird thing: map dk to something, press d, wait for timeoutlen, then press k.
+      You do BOTH dk (delete two lines) plus whatever you mapped dk to
+
+parse keymap
+find (mode, prefix) pairs where prefix is leader
+    - if prefix additionally does non-leader action, complain?
+    - insert listener for prefix that waits for another key press, then feeds prefix+keypress
+
+What is correct behavior of user types valid prefix followed by unmapped completion?
+    - standard vim behavior seems to be "ignore prefix until you get an actual map"
+    - this could lead to confusing behavior in our case, unless we explicitly override all builtins
+      with nops. E.g. gk is mapped but not gj, user types gj and gets builtin vim behavior...
+    - instead, would be nice to display valid mappings which-key style and require user to
+      explicitly kill with esc if that's what they want...
+
+
+internal format:
+    - separate trie for each mode
+    - keys are what you get by applying nvim_replace_termcodes for individual characters
+    - where do the options go?
+
+external format:
+    - single string with no (i.e. consec int) key is assumed to be keypress prefix, unless "keys"
+      key exists, in which case the string is the action
+
+{
+    [mode="modestr"]?
+    [options={options table}]?
+    ([("keypress"|keys={"key1", "key2"})("action"|action function)?]?
+    [{recursive}*]
+}
+
+function apply(mappings)
+    first parse mappings into separate trie for each mode
+        - if you notice terminal mappings that are also proper prefixes, complain and quit
+        - if you notice leaves that do not give a terminal mapping, complain and quit
+
+    check that adding the mappings does not create any terminal mappings that are also proper
+    prefixes:
+        - for each prefix of every added (mode, mapping) pair:
+            - if it is terminal, check that it isn't also proper prefix (in added or in existing)
+                - add to a list of terminal mappings
+            - if it is non-terminal, check that it isn't also terminal in existing
+                - if it is non-terminal, and not present at all in existing, add it to a separate
+                  list of wait prefixes
+
+    merge added mappings to existing mappings
+    for each new terminal mapping, do the mapping
+    for each new wait prefix, add an additional wait mapping
+
+function unmap(key, modes, recursive)
+    if not recursive:
+        for each mode in modes:
+            if key is proper prefix, error and quit
+            
+    for each mode:
+        if key is terminal:
+            remove from trie and unmap
+        if key is non-terminal:
+            recursively remove from trie and unmap
+
+
+
+print(vim.api.nvim_replace_termcodes("<C-S-Left>", true, true, true))
