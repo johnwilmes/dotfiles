@@ -25,7 +25,7 @@ mkdir -p $FONT_DIR
 # xargs: pass those lines as arguments to sudo apt install
 # process substitution "<( ... )" sends output to xargs as name of file (preserving stdin, though
 # I'm not sure why that's important here)
-APT_LIST="$BASE_DIR/ubuntu.apt"
+APT_LIST="$BASE_DIR/ubuntu-base.apt"
 xargs -a <(awk '! /^ *(#|$)/' "$APT_LIST") -r -- sudo apt install
 
 # Set shell

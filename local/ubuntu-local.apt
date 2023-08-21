@@ -3,18 +3,16 @@
 # Lines starting with '#' and blank lines will be ignored
 # (Don't use trailing comments)
 
-# This is just to have a reasonably functional system, not to have everything you'd want
+# Vanilla gnome (select on login screen)
+gnome-session
 
-# For installing other stuff
-curl
-stow
-git
+# To map caps lock as desired (X11)
+xcape
 
-# The good zsh experience
-zsh
-fzf
-ripgrep
-fd-find
+# For extension to disable activities overview on login
+chrome-gnome-shell
+gnome-shell-extension-prefs
 
-# Needed for some vim stuff
-sqlite3
+build-essential
+python-is-python3
+
