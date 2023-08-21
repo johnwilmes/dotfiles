@@ -35,15 +35,18 @@ xargs -a <(awk '! /^ *(#|$)/' "$APT_LIST") -r -- sudo apt install
 # ln -s $(which fdfind) "$BIN_DEST/fd"
 
 # Set system defaults
-sudo cp -R "$BASE_DIR/etc/default" /etc/default
+sudo cp -R "$BASE_DIR/etc/default/*" /etc/default/
 sudo update-grub
 
 # Set shell
 echo "Changing shell to zsh"
 chsh -s /usr/bin/zsh
 
+# install poetry
+curl -sSL https://install.python-poetry.org | python3 -
+
 # Load dconf preferences (mostly gnome keybindings)
-dconf load /org/gnome/desktop/wm/ < "$BASE_DIR/../dconf/gnome-desktop-wm.conf"
+dconf load /org/gnome/desktop/ < "$BASE_DIR/../dconf/gnome-desktop.conf"
 dconf load /org/gnome/mutter/keybindings/ < "$BASE_DIR/../dconf/gnome-mutter.conf"
 dconf load /org/gnome/shell/keybindings/ < "$BASE_DIR/../dconf/gnome-shell-keybindings.conf"
 dconf load /org/gnome/settings-daemon/plugins/ < "$BASE_DIR/../dconf/gnome-settingsdaemon-plugins.conf"
@@ -51,10 +54,10 @@ dconf load /org/gnome/settings-daemon/plugins/ < "$BASE_DIR/../dconf/gnome-setti
 # TODO:
 # automatically get latest release from github instead of requiring manual url
 # Download kitty terminal emulator
-curl -L https://github.com/kovidgoyal/kitty/releases/download/v0.25.0/kitty-0.25.0-x86_64.txz |
+curl -L https://github.com/kovidgoyal/kitty/releases/download/v0.28.1/kitty-0.28.1-x86_64.txz |
     tar xJ -C "$STOW_DIR" --one-top-level=kitty --overwrite
 # Download neovim
-curl -L https://github.com/neovim/neovim/releases/download/v0.7.0/nvim-linux64.tar.gz |
+curl -L https://github.com/neovim/neovim/releases/download/v0.9.0/nvim-linux64.tar.gz |
     tar xz -C "$STOW_DIR" --one-top-level=nvim --strip-components=1 --overwrite
 
 # symlink the bin and share directories for kitty
@@ -63,12 +66,12 @@ stow -d "$STOW_DIR" --ignore='^lib.*' --no-folding kitty
 ln -sf "$STOW_DIR/nvim/bin/nvim" $BIN_DEST
 
 iosevkazip=$(mktemp --suffix=.zip)
-curl -L https://github.com/be5invis/Iosevka/releases/download/v10.3.0/super-ttc-sgr-iosevka-fixed-10.3.0.zip > $iosevkazip
+curl -L https://github.com/be5invis/Iosevka/releases/download/v22.1.1/super-ttc-sgr-iosevka-fixed-22.1.1.zip > $iosevkazip
 unzip $iosevkazip -d $FONT_DIR
 rm -f $iosevkazip
 
 blexzip=$(mktemp --suffix=.zip)
-curl -L https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/IBMPlexMono.zip > $blexzip
+curl -L https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.0/IBMPlexMono.zip > $blexzip
 unzip $blexzip -d $FONT_DIR
 rm -f $blexzip
 

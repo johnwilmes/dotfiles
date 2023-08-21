@@ -27,3 +27,7 @@ chrome-gnome-shell
 gnome-shell-extension-prefs
 
 build-essential
+python-is-python3
+
+# Needed for some vim stuff
+sqlite3

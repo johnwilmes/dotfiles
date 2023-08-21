@@ -19,9 +19,12 @@ packer.startup(function(use)
         run = ':TSUpdate'
     } 
 
+    use 'edluffy/hologram.nvim'
+
     use_rocks "loop"
     use_rocks "lsqlite3"
     use_rocks "lrexlib-pcre2"
+    use_rocks "base64"
 
 --[[
     -- delete buffer while keeping window layout

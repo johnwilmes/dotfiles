@@ -4,6 +4,8 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_STATE_HOME="$HOME/.local/state"
 
+export GEM_HOME="/home/jw/.local/share/gems"
+
 # Make sure path includes ~/.local/bin
-path_additions=("$HOME/.local/bin")
+path_additions=("$HOME/.local/bin" "$GEM_HOME/bin")
 path=(${path_additions:|path} $path)

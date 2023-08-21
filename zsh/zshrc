@@ -5,6 +5,9 @@ export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/ohmyzsh"
 
 ZSH_COMPDUMP="$ZSH_CACHE_DIR/zcompdump"
 
+zstyle :omz:plugins:ssh-agent quiet yes
+zstyle :omz:plugins:ssh-agent lazy yes
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -82,7 +85,8 @@ ZSH_CUSTOM="$ZSH/custom"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(colorize command-not-found fzf pipenv)
+
+plugins=(colorize command-not-found fzf poetry ssh-agent)
 
 if [ -r $ZSH ]; then
     source $ZSH/oh-my-zsh.sh
@@ -105,4 +109,20 @@ export VISUAL="$EDITOR"
 # How long to wait for additional characters in sequence (e.g. due to <alt> via <esc> mapping...)
 # 1 = 10ms
 export KEYTIMEOUT=1
+
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/jw/.local/miniconda/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/jw/.local/miniconda/etc/profile.d/conda.sh" ]; then
+        . "/home/jw/.local/miniconda/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/jw/.local/miniconda/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
 
