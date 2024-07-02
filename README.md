@@ -4,7 +4,25 @@ Configuration repository using dotbot
 
 ## Usage
 
-Design notes:
+    git clone git@github.com:johnwilmes/dotfiles.git
+    cd dotfiles
+    git submodule init
+    git submodule update
+    ./install core
+    cd local
+    ./install-<something>.sh
+
+Note that if you are doing this on a remote machine, it probably won't have the kitty terminfo
+available. So from local kitty, run
+
+    kitten ssh <hostname>
+
+Afterwards, execute vi and run `:PackerSync`
+
+For remote machine, delete references to ssh-agent from .zshrc?
+
+## Design notes
+
 - only target bash, no attempt to make shell scripts portable to arbitary posix shell
 - - POSIX sh is a pain
 - - bash is slightly less of a pain
