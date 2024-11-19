@@ -1,6 +1,3 @@
--- Set <leader> (which is a global variable and not an option, for some reason?)
-vim.g.mapleader = " "
-
 -- Allow hidden buffers
 vim.opt.hidden = true
 

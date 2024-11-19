@@ -17,4 +17,5 @@ ripgrep
 fd-find
 
 # Needed for some vim stuff
+luarocks
 sqlite3
