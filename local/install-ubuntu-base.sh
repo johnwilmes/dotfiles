@@ -41,7 +41,7 @@ ln -sf "$STOW_DIR/nvim/bin/nvim" $BIN_DEST
 
 # install uv
 curl -L https://github.com/astral-sh/uv/releases/latest/download/uv-x86_64-unknown-linux-gnu.tar.gz |
-    tar xz -C "." --one-top-level=astral-uv --strip-components=1 --overwrite
+    tar xz -C "$STOW_DIR" --one-top-level=astral-uv --strip-components=1 --overwrite
 
 ln -sf "$STOW_DIR/astral-uv/uv" $BIN_DEST
 ln -sf "$STOW_DIR/astral-uv/uvx" $BIN_DEST
