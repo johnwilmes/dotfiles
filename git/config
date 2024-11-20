@@ -3,3 +3,5 @@
 [user]
 	email = jw@johnwilmes.name
 	name = John Wilmes
+[core]
+	excludesfile = /home/jw/.config/git/ignore
