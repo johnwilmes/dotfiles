@@ -13,6 +13,6 @@
 
 # actually, map all ctrl keys to escape also 
 # (Need this in VM where host already has Caps mapped to ctrl)
-xcape -e 'Caps_Lock=Escape;Control_L=Escape;Control_R=Escape'
+# xcape -e 'Caps_Lock=Escape;Control_L=Escape;Control_R=Escape'
 
-xmodmap "$HOME/.config/Xmodmap"
+# xmodmap "$HOME/.config/Xmodmap"
