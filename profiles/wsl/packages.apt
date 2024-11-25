@@ -1,0 +1,8 @@
+# This file contains a list of packages to install with apt
+# Each line should contain a single package name
+# Lines starting with '#' and blank lines will be ignored
+# (Don't use trailing comments)
+
+build-essential
+python-is-python3
+

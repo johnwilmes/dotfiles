@@ -1,28 +1,77 @@
 #!/usr/bin/env bash
 
-SCHEMA_DIR="dotbot/schema"
-SCHEMA_SUFFIX=".yaml"
-DOTBOT_BIN="dotbot/application/bin/dotbot"
-
-set -e
-
-# Apparently, reliably getting the location of a script is complicated.
-# Even this will fail if the script is part of a pipeline, hence the "set -e"
-BASE_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+export BIN_DEST="$HOME/.local/bin/" # (this is part of systemd spec, but not XDG)
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+export FONT_DIR="$XDG_DATA_HOME/fonts"
+export STOW_DIR="$HOME/.local/stow"
 
 if [[ $# == 0 ]]
 then
-    echo "Usage: install <schema>"
+    echo "Usage: install <profile_name>"
     exit 1
 fi
 
-schema="${SCHEMA_DIR}/$1${SCHEMA_SUFFIX}"
-shift
+DOTBOT_BIN="dotbot/bin/dotbot"
+DOTBOT_SCHEMA_FILE="dotbot.yaml"
+PACKAGE_FILE="packages.apt"
+SETUP_SCRIPT="setup.sh"
 
+# Apparently, reliably getting the location of a script is complicated.
+# Even this will fail if the script is part of a pipeline, hence the "set -e"
+set -e
+export BASE_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+
+export PROFILE_DIR="${BASE_DIR}/profiles/$1"
+shift
+if ! [[ -d "${PROFILE_DIR}" && -r "${PROFILE_DIR}" ]]
+then
+    echo "Invalid or unreadable profile directory: ${PROFILE_DIR}"
+    exit 1
+fi
+
+schema = "${PROFILE_DIR}/${DOTBOT_SCHEMA_FILE}"
 if ! [[ -r "${schema}" ]]
 then
     echo "Schema not readable: ${schema}"
     exit 1 
 fi
 
-"${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${schema}" "${@}"
+packages = "${PROFILE_DIR}/${PACKAGE_FILE}"
+if ! [[ -r "${schema}" ]]
+then
+    echo "Package list not readable: ${packages}"
+    exit 1 
+fi
+
+setup = "${PROFILE_DIR}/${SETUP_SCRIPT}"
+if ! [[ -x "${schema}" ]]
+then
+    echo "Setup script not executable: ${setup}"
+    exit 1 
+fi
+
+# make folders if they don't exist
+mkdir -p $STOW_DIR
+mkdir -p $BIN_DEST
+mkdir -p $XDG_CONFIG_HOME
+mkdir -p $XDG_DATA_HOME
+mkdir -p $XDG_STATE_HOME
+mkdir -p $FONT_DIR
+
+# run dotbot
+"${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${schema}" 
+
+# install packages
+# awk: print the lines in $APT_LIST that do not match [spaces followed by # or end of line]
+# xargs: pass those lines as arguments to sudo apt install
+# process substitution "<( ... )" sends output to xargs as name of file (preserving stdin, though
+# I'm not sure why that's important here)
+sudo apt update
+sudo apt upgrade -y
+xargs -a <(awk '! /^ *(#|$)/' "${packages}") -r -- sudo apt install
+
+# run setup script
+"${setup}" "${@}"
+

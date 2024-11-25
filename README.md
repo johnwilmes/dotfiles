@@ -9,10 +9,10 @@ Configuration repository using dotbot
     git submodule init
     git submodule update
     ./install core
-    cd local
-    ./install-<something>.sh
 
-For remote machine, delete references to ssh-agent from .zshrc?
+Subsequentely, on WSL or local Ubuntu:
+
+    ./install wsl|ubuntu
 
 ## Design notes
 

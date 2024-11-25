@@ -1,0 +1,17 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- link:
+    ~/.config/wezterm/wezterm.lua: wezterm.lua
+
+    ~/.xprofile:
+
+- clean: ['~']
+- clean:
+    ~/.config:
+      recursive: true
+- clean:
+    ~/.local:
+      recursive: true

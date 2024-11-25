@@ -5,8 +5,8 @@ export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/ohmyzsh"
 
 ZSH_COMPDUMP="$ZSH_CACHE_DIR/zcompdump"
 
-zstyle :omz:plugins:ssh-agent quiet yes
-zstyle :omz:plugins:ssh-agent lazy yes
+#zstyle :omz:plugins:ssh-agent quiet yes
+#zstyle :omz:plugins:ssh-agent lazy yes
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -78,7 +78,10 @@ SAVEHIST=1000000
 HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh_history"
 
 # Would you like to use another custom folder than $ZSH/custom?
-ZSH_CUSTOM="$ZSH/custom"
+#ZSH_CUSTOM="$ZSH/custom"
+# It's convenient for this to be outside of the $ZSH directory
+# so changes to it don't affect this repo
+ZSH_CUSTOM="$HOME/.local/share/omz-local"
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
@@ -86,43 +89,11 @@ ZSH_CUSTOM="$ZSH/custom"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 
-plugins=(colorize command-not-found fzf poetry ssh-agent)
+# These should be relevant on all setups; use omz plugin load <plugin> elsewhere
+
+plugins=(colorize command-not-found fzf)
 
 if [ -r $ZSH ]; then
     source $ZSH/oh-my-zsh.sh
 fi
-
-# Remaining stuff could go in $ZSH_CUSTOM/*.zsh
-# But I prefer to keep it here, so it still works even if oh-my-zsh is broken
-
-EDITOR=`command -v vim`
-if command -v nvim &> /dev/null; then
-    EDITOR=`command -v nvim`
-    alias vi='nvim'
-    alias vim='nvim'
-    alias view='nvim -R'
-    alias vimdiff='nvim -d'
-fi
-export EDITOR
-export VISUAL="$EDITOR"
-
-# How long to wait for additional characters in sequence (e.g. due to <alt> via <esc> mapping...)
-# 1 = 10ms
-export KEYTIMEOUT=1
-
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/jw/.local/miniconda/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/jw/.local/miniconda/etc/profile.d/conda.sh" ]; then
-        . "/home/jw/.local/miniconda/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/jw/.local/miniconda/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
 

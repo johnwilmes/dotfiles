@@ -1,0 +1,18 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- link:
+    ~/.local/bin/wsl-ssh: profiles/wsl/ssh
+    ~/.local/share/ohmyzsh/custom/:
+      glob: true
+      path: profiles/wsl/*.zsh
+
+- clean: ['~']
+- clean:
+    ~/.config:
+      recursive: true
+- clean:
+    ~/.local:
+      recursive: true

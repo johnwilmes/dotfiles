@@ -1,0 +1,31 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- link:
+    ~/.zshenv: zsh/zshenv
+    ~/.zshrc: zsh/zshrc
+    ~/.local/share/ohmyzsh: zsh/ohmyzsh
+    ~/.local/share/omz-local/plugins:
+      path: zsh/plugins
+      force: true 
+    ~/.local/share/omz-local/themes:
+      path: zsh/themes
+      force: true 
+    ~/.local/share/omz-local/:
+      glob: true
+      path: zsh/local/*.zsh
+    ~/.config/git:
+
+    ~/.config/nvim/:
+      glob: true
+      path: nvim/*
+
+- clean: ['~']
+- clean:
+    ~/.config:
+      recursive: true
+- clean:
+    ~/.local:
+      recursive: true
