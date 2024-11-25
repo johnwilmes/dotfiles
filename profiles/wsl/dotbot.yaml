@@ -5,7 +5,7 @@
 
 - link:
     ~/.local/bin/wsl-ssh: profiles/wsl/ssh
-    ~/.local/share/ohmyzsh/custom/:
+    ~/.local/share/omz-local/:
       glob: true
       path: profiles/wsl/*.zsh
 

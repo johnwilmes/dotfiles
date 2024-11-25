@@ -31,22 +31,22 @@ then
     exit 1
 fi
 
-schema = "${PROFILE_DIR}/${DOTBOT_SCHEMA_FILE}"
+schema="${PROFILE_DIR}/${DOTBOT_SCHEMA_FILE}"
 if ! [[ -r "${schema}" ]]
 then
     echo "Schema not readable: ${schema}"
     exit 1 
 fi
 
-packages = "${PROFILE_DIR}/${PACKAGE_FILE}"
-if ! [[ -r "${schema}" ]]
+packages="${PROFILE_DIR}/${PACKAGE_FILE}"
+if ! [[ -r "${packages}" ]]
 then
     echo "Package list not readable: ${packages}"
     exit 1 
 fi
 
-setup = "${PROFILE_DIR}/${SETUP_SCRIPT}"
-if ! [[ -x "${schema}" ]]
+setup="${PROFILE_DIR}/${SETUP_SCRIPT}"
+if ! [[ -x "${setup}" ]]
 then
     echo "Setup script not executable: ${setup}"
     exit 1 
@@ -70,7 +70,7 @@ mkdir -p $FONT_DIR
 # I'm not sure why that's important here)
 sudo apt update
 sudo apt upgrade -y
-xargs -a <(awk '! /^ *(#|$)/' "${packages}") -r -- sudo apt install
+xargs -a <(awk '! /^ *(#|$)/' "${packages}") -r -- sudo apt install -y
 
 # run setup script
 "${setup}" "${@}"

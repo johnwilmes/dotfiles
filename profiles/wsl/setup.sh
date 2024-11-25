@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
 win_user=$(powershell.exe '$env:UserName')
-win_home = "/mnt/c/Users/${win_user}"
-
-# Set system defaults
-sudo cp -R "${PROFILE_DIR}/etc/default/*" /etc/default/
+win_user=$(echo $win_user | tr -d '[:space:]') # remove trailing whitespace
+win_home="/mnt/c/Users/${win_user}"
 
 ln -sf $win_home "$HOME/winhome"
 
