@@ -1,0 +1,17 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- link:
+    ~/.local/share/omz-local/:
+      glob: true
+      path: profiles/macos/*.zsh
+
+- clean: ['~']
+- clean:
+    ~/.config:
+      recursive: true
+- clean:
+    ~/.local:
+      recursive: true
