@@ -14,7 +14,6 @@ git
 zsh
 fzf
 ripgrep
-fd-find
 
 # Needed for some vim stuff
 luarocks

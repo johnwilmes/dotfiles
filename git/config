@@ -5,3 +5,5 @@
 	name = John Wilmes
 [core]
 	excludesfile = /home/jw/.config/git/ignore
+[pull]
+	ff = only
