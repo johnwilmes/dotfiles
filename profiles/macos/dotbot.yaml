@@ -4,6 +4,7 @@
       relink: true
 
 - link:
+    ~/.config/wezterm/wezterm.lua: wezterm.lua
     ~/.local/share/omz-local/:
       glob: true
       path: profiles/macos/*.zsh

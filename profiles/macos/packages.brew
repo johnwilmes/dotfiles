@@ -3,5 +3,5 @@
 # Lines starting with '#' and blank lines will be ignored
 # (Don't use trailing comments)
 
-iterm2
+wezterm
 karabiner-elements
