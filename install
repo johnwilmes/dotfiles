@@ -11,6 +11,7 @@ export STOW_DIR="$HOME/.local/stow"
 if [[ "$OSTYPE" == "darwin"* ]]; then
     IS_MACOS=true
     PACKAGE_FILE="packages.brew"
+    python3 -m pip install pyyaml
 else
     IS_MACOS=false
     PACKAGE_FILE="packages.apt"
