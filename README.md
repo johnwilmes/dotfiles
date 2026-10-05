@@ -61,6 +61,10 @@ Homebrew may still update individual packages during `brew install`.
 - WezTerm defaults to the `Ubuntu-24.04` WSL distribution. Set
   `WEZTERM_WSL_DISTRO` in the Windows environment to select a different one.
 - Karabiner may require permissions granted through macOS System Settings.
+  The Alt+Tab/Alt+backtick mapping requires Karabiner 16+. Holding left Option
+  starts as normal Option; pressing Tab or backtick changes it to Command until
+  Option is released. Shift can reverse cycling without closing the switcher.
+  Other keys pressed during that hold also see Command. Right Option is unchanged.
 - GNOME dconf preferences are optional: run
   `profiles/ubuntu/dconf/load-all.sh` in your desktop session to apply them.
 - Paths intentionally follow this repository's fixed `~/.config` and
