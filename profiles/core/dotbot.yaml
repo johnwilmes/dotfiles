@@ -6,13 +6,13 @@
 - link:
     ~/.zshenv: zsh/zshenv
     ~/.zshrc: zsh/zshrc
+    ~/.zprofile: zsh/zprofile
+    ~/.config/zsh/homebrew.zsh: zsh/homebrew.zsh
     ~/.local/share/ohmyzsh: zsh/ohmyzsh
     ~/.local/share/omz-local/plugins:
       path: zsh/plugins
-      force: true 
     ~/.local/share/omz-local/themes:
       path: zsh/themes
-      force: true 
     ~/.local/share/omz-local/:
       glob: true
       path: zsh/local/*.zsh

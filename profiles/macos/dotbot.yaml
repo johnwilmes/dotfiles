@@ -5,6 +5,7 @@
 
 - link:
     ~/.config/wezterm/wezterm.lua: wezterm.lua
+    ~/.config/karabiner: karabiner
     ~/.local/share/omz-local/:
       glob: true
       path: profiles/macos/*.zsh

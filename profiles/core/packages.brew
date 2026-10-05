@@ -18,3 +18,8 @@ ripgrep
 # Needed for some vim stuff
 luarocks
 sqlite3
+
+# Native macOS builds
+neovim
+uv
+pygments

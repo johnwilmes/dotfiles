@@ -20,7 +20,8 @@
                 "^io\\.alacritty$",
                 "^org\\.alacritty$",
                 "^net\\.kovidgoyal\\.kitty$",
-                "^com\\.mitchellh\\.ghostty$"
+                "^com\\.mitchellh\\.ghostty$",
+                "^com\\.github\\.wez\\.wezterm$"
               ]
             }
           ],
@@ -58,7 +59,8 @@
                 "^io\\.alacritty$",
                 "^org\\.alacritty$",
                 "^net\\.kovidgoyal\\.kitty$",
-                "^com\\.mitchellh\\.ghostty$"
+                "^com\\.mitchellh\\.ghostty$",
+                "^com\\.github\\.wez\\.wezterm$"
               ]
             }
           ],

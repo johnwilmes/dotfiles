@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-
-# nothing yet...
+set -euo pipefail
+# macOS applications are installed by the package manifest.

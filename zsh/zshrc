@@ -1,3 +1,5 @@
+[[ ! -r "$HOME/.config/zsh/homebrew.zsh" ]] || source "$HOME/.config/zsh/homebrew.zsh"
+
 # Path to your oh-my-zsh installation.
 export ZSH="${XDG_DATA_HOME:-$HOME/.local/share}/ohmyzsh"
 
@@ -93,7 +95,7 @@ ZSH_CUSTOM="$HOME/.local/share/omz-local"
 
 plugins=(colorize command-not-found fzf)
 
-if [ -r $ZSH ]; then
-    source $ZSH/oh-my-zsh.sh
+if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
+    source "$ZSH/oh-my-zsh.sh"
 fi
 

@@ -1,2 +1,2 @@
-# set up homebrew path and environment variables
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# Compatibility for existing links. Initialization now happens before Oh My Zsh
+# in ~/.zshrc and in login shells through ~/.zprofile.

@@ -1,89 +1,111 @@
 #!/usr/bin/env bash
+set -euo pipefail
+trap 'printf "Installation failed at line %s. Fix the error above and rerun.\n" "$LINENO" >&2' ERR
 
-export BIN_DEST="$HOME/.local/bin/" # (this is part of systemd spec, but not XDG)
+usage() { echo "Usage: $0 <core|macos|ubuntu|wsl> [--upgrade] [--change-shell]"; }
+[[ $# -gt 0 ]] || { usage >&2; exit 1; }
+profile=$1
+shift
+upgrade=false
+export CHANGE_SHELL=false
+export UPGRADE_TOOLS=false
+for arg in "$@"; do
+    case "$arg" in
+        --upgrade) upgrade=true; UPGRADE_TOOLS=true ;;
+        --change-shell) CHANGE_SHELL=true ;;
+        *) usage >&2; exit 1 ;;
+    esac
+done
+case "$profile" in core|macos|ubuntu|wsl) ;; *) usage >&2; exit 1 ;; esac
+export BASE_DIR
+BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+case "$(uname -s)" in
+    Darwin) platform=macos; package_file=packages.brew ;;
+    Linux)
+        platform=linux; package_file=packages.apt
+        command -v apt-get >/dev/null || { echo "Only Debian/Ubuntu Linux is supported." >&2; exit 1; }
+        ;;
+    *) echo "Unsupported operating system." >&2; exit 1 ;;
+esac
+if [[ "$profile" == macos && "$platform" != macos ]] ||
+   [[ "$platform" == macos && "$profile" != macos && "$profile" != core ]]; then
+    echo "Profile $profile is incompatible with $platform." >&2
+    exit 1
+fi
+if [[ "$profile" == wsl ]] && ! command -v powershell.exe >/dev/null; then
+    echo "The wsl profile requires Windows interop (powershell.exe)." >&2
+    exit 1
+fi
+profiles=(core)
+[[ "$profile" == core ]] || profiles+=("$profile")
+for selected in "${profiles[@]}"; do
+    for file in dotbot.yaml "$package_file" setup.sh; do
+        [[ -r "$BASE_DIR/profiles/$selected/$file" ]] || { echo "Missing $selected/$file" >&2; exit 1; }
+    done
+done
+
+# These paths match the destinations in the Dotbot manifests.
+export BIN_DEST="$HOME/.local/bin"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
-export FONT_DIR="$XDG_DATA_HOME/fonts"
+export XDG_CACHE_HOME="$HOME/.cache"
 export STOW_DIR="$HOME/.local/stow"
+export FONT_DIR="$XDG_DATA_HOME/fonts"
+export PATH="$BIN_DEST:$PATH"
 
-# Detect OS
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    IS_MACOS=true
-    PACKAGE_FILE="packages.brew"
-    python3 -m pip install pyyaml
-else
-    IS_MACOS=false
-    PACKAGE_FILE="packages.apt"
-fi
-
-if [[ $# == 0 ]]; then
-    echo "Usage: install <profile_name>"
-    exit 1
-fi
-
-DOTBOT_BIN="dotbot/bin/dotbot"
-DOTBOT_SCHEMA_FILE="dotbot.yaml"
-SETUP_SCRIPT="setup.sh"
-
-# Apparently, reliably getting the location of a script is complicated.
-# Even this will fail if the script is part of a pipeline, hence the "set -e"
-set -e
-export BASE_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-
-export PROFILE_DIR="${BASE_DIR}/profiles/$1"
-shift
-if ! [[ -d "${PROFILE_DIR}" && -r "${PROFILE_DIR}" ]]; then
-    echo "Invalid or unreadable profile directory: ${PROFILE_DIR}"
-    exit 1
-fi
-
-schema="${PROFILE_DIR}/${DOTBOT_SCHEMA_FILE}"
-if ! [[ -r "${schema}" ]]; then
-    echo "Schema not readable: ${schema}"
-    exit 1 
-fi
-
-packages="${PROFILE_DIR}/${PACKAGE_FILE}"
-if ! [[ -r "${packages}" ]]; then
-    echo "Package list not readable: ${packages}"
-    exit 1 
-fi
-
-setup="${PROFILE_DIR}/${SETUP_SCRIPT}"
-if ! [[ -x "${setup}" ]]; then
-    echo "Setup script not executable: ${setup}"
-    exit 1 
-fi
-
-# make folders if they don't exist
-mkdir -p $STOW_DIR
-mkdir -p $BIN_DEST
-mkdir -p $XDG_CONFIG_HOME
-mkdir -p $XDG_DATA_HOME
-mkdir -p $XDG_STATE_HOME
-mkdir -p $FONT_DIR
-
-# run dotbot
-"${DOTBOT_BIN}" -d "${BASE_DIR}" -c "${schema}" 
-
-# install packages
-if [[ "$IS_MACOS" == true ]]; then
-    # Check if Homebrew is installed, install if not
-    if ! command -v brew &> /dev/null; then
-        echo "Installing Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+if [[ "$platform" == macos ]]; then
+    source "$BASE_DIR/scripts/homebrew.sh"
+    if ! find_homebrew; then
+        installer=$(mktemp)
+        trap 'rm -f "$installer"' EXIT
+        curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$installer"
+        /bin/bash "$installer"
+        find_homebrew || { echo "Homebrew installation did not produce a brew executable." >&2; exit 1; }
     fi
-    
-    # Update Homebrew and install packages
-    brew update
-    grep -v '^\s*\(#\|$\)' "${packages}" | xargs brew install
+    brew_env=$("$brew_bin" shellenv bash)
+    eval "$brew_env"
+    "$brew_bin" update
+    [[ "$upgrade" == false ]] || "$brew_bin" upgrade
+    "$brew_bin" install python git
 else
-    # Ubuntu path
-    sudo apt update
-    sudo apt upgrade -y
-    xargs -a <(awk '! /^ *(#|$)/' "${packages}") -r -- sudo apt install -y
+    sudo apt-get update
+    sudo apt-get install -y python3 git curl ca-certificates gnupg
+    [[ "$upgrade" == false ]] || sudo apt-get upgrade -y
 fi
 
-# run setup script
-"${setup}" "${@}"
+# Dotbot vendors PyYAML as a nested submodule.
+git -C "$BASE_DIR" submodule sync --recursive
+git -C "$BASE_DIR" submodule update --init --recursive
+python3 -c 'import sys; assert sys.version_info >= (3, 6), "Python 3.6+ required"'
+
+for selected in "${profiles[@]}"; do
+    export PROFILE_DIR="$BASE_DIR/profiles/$selected"
+    if [[ -f "$PROFILE_DIR/prerequisites.sh" ]]; then
+        bash "$PROFILE_DIR/prerequisites.sh"
+    fi
+    packages=()
+    while IFS= read -r package || [[ -n "$package" ]]; do
+        packages+=("$package")
+    done < <(awk 'NF && $1 !~ /^#/ { print $1 }' "$PROFILE_DIR/$package_file")
+    if [[ ${#packages[@]} -gt 0 ]]; then
+        if [[ "$platform" == macos ]]; then
+            "$brew_bin" install "${packages[@]}"
+        else
+            sudo apt-get install -y "${packages[@]}"
+        fi
+    fi
+    bash "$PROFILE_DIR/setup.sh"
+done
+
+mkdir -p "$BIN_DEST" "$STOW_DIR" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME" "$FONT_DIR"
+for selected in "${profiles[@]}"; do
+    python3 "$BASE_DIR/dotbot/bin/dotbot" -d "$BASE_DIR" -c "$BASE_DIR/profiles/$selected/dotbot.yaml"
+done
+for binary in git zsh nvim uv uvx; do
+    command -v "$binary" >/dev/null || { echo "Missing expected command: $binary" >&2; exit 1; }
+done
+nvim --version >/dev/null
+uv --version >/dev/null
+uvx --version >/dev/null
+echo "Installed $profile (including core). Open a new terminal to load the configuration."

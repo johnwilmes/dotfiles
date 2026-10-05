@@ -6,6 +6,8 @@
 - link:
     ~/.config/wezterm/wezterm.lua: wezterm.lua
 
+    ~/.local/share/omz-local/50-ubuntu-ssh.zsh: profiles/ubuntu/50-ubuntu-ssh.zsh
+
     ~/.xprofile:
 
 - clean: ['~']

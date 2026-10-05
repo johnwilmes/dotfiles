@@ -14,7 +14,7 @@ config.visual_bell = {
 if wezterm.target_triple == 'x86_64-pc-windows-msvc' then
   -- We are running on Windows; maybe we emit different
   -- key assignments here?
-  wsl_distribution = 'Ubuntu-24.04'
+  local wsl_distribution = os.getenv('WEZTERM_WSL_DISTRO') or 'Ubuntu-24.04'
   config.wsl_domains = {
       {
           name = 'wsl',

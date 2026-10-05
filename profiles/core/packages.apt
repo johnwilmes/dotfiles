@@ -18,3 +18,5 @@ ripgrep
 # Needed for some vim stuff
 luarocks
 sqlite3
+
+python3-pygments

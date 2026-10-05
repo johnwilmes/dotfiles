@@ -55,7 +55,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^com\\.github\\.wez\\.wezterm$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }
@@ -86,7 +87,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^com\\.github\\.wez\\.wezterm$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }
@@ -122,7 +124,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^com\\.github\\.wez\\.wezterm$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }
